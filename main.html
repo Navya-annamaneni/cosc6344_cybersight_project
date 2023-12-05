@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBER SIGHT: INSIGHTS INTO UNSW NB15 and kDD</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: #45a049;
+        }
+        #plot-container {
+        width: 80%; /* Adjust the width as needed */
+        margin: auto; /* Center the plot container */
+        padding: 10px;
+    }
+
+    #buttons-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 26vh;
+    }
+        
+        
+
+        
+
+        .iframe-pair-container {
+            display: flex;
+            width: 100%;
+            height: 50vh;
+            /* Each pair of iframes takes half of the viewport height */
+            margin-bottom: 10px;
+        }
+
+        .half-width-iframe {
+            flex: 1;
+            width: 50%;
+            /* Each iframe takes half of the container width */
+            height: 100%;
+            border: none;
+        }
+
+        .full-width-iframe {
+            width: 100%;
+            height: 600px;
+            /* Adjust height as needed */
+            border: none;
+            margin-bottom: 10px;
+        }
+        .additional-buttons, .individual-buttons {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .additional-buttons button, .individual-buttons button {
+        margin: 5px;
+    }
+    </style>
+</head>
+
+<body>
+    <h1>CYBER SIGHT: INSIGHTS INTO UNSW NB15 AND KDD</h1>
+    <h2>select a plot to display </h2>
+    <div id="buttons-container" style="text-align: center; margin-top: 20px; margin-bottom: 20px;">
+        <!-- Button to display all plots -->
+        <button class="button" onclick="toggleButtons()">Display all plots</button>
+
+        <!-- Additional buttons initially hidden -->
+        <div class="additional-buttons" style="display: none">
+            <!-- Button 1 that calls the load function when clicked -->
+            <button class="button" onclick="loadAllPlots()">UNSW PLOTS</button>
+            <!-- Button 2 that calls the load2 function when clicked -->
+            <button class="button"  onclick="loadAllPlots2()">KDD Plots</button>
+        </div>
+        <!-- Buttons for individual plots - UNSW -->
+        <button class="button" onclick="individualToggle('UNSW')">Individual plots for UNSW</button> 
+        <div id="unsw-individual-buttons" class="individual-buttons" style="display: none"></div>
+
+        <!-- Buttons for individual plots - KDD -->
+        <button class="button" onclick="individualToggle('KDD')">Individual plots for KDD</button> 
+        <div id="kdd-individual-buttons" class="individual-buttons" style="display: none"></div>
+        <div id="additional-buttons-container"></div>
+        <!-- Home button -->
+        <button class="button" onclick="navigateToHome()">Home</button>
+    </div>
+    
+
+    <hr>
+    <!-- Container for dynamically added iframes -->
+    <div id="plot-container">
+    </div>
+    
+    <script>
+        function navigateToHome() {
+    // Reset to the original state
+    showOriginalButtons();
+    hideIndividualButtons();
+    hideAllPlots();
+}
+
+function hideAllPlots() {
+    // Clear the content of the plot container
+    var plotContainer = document.getElementById('plot-container');
+    plotContainer.innerHTML = '';
+
+    // Hide individual buttons
+    var unswButtons = document.getElementById('unsw-individual-buttons');
+    var kddButtons = document.getElementById('kdd-individual-buttons');
+
+    unswButtons.style.display = 'none';
+    kddButtons.style.display = 'none';
+
+    // Display the "Display all plots," "Individual plots for UNSW," and "Individual plots for KDD" buttons
+    toggleButtons();
+}
+
+function showOriginalButtons() {
+    // Show the "Display all plots," "UNSW PLOTS," and "KDD Plots" buttons
+    var additionalButtons = document.querySelector('.additional-buttons');
+    additionalButtons.style.display = 'block';
+    
+
+}
+
+function hideIndividualButtons() {
+    // Hide individual buttons
+    var unswButtons = document.getElementById('unsw-individual-buttons');
+    var kddButtons = document.getElementById('kdd-individual-buttons');
+
+    unswButtons.style.display = 'none';
+    kddButtons.style.display = 'none';
+    // Hide the two additional buttons
+    var additionalButtonsContainer = document.getElementById('additional-buttons-container');
+    additionalButtonsContainer.style.display = 'none';
+}
+
+       
+        function toggleButtons() {
+        // Get the additional buttons container
+        var additionalButtons = document.querySelector('.additional-buttons');
+        var plotButtons = document.querySelectorAll('.button:not(.additional-buttons button)');
+        var homeButton = document.querySelector('.button[onclick="navigateToHome()"]');
+
+        // Toggle the display style for additional buttons
+        if (additionalButtons.style.display === 'none' || additionalButtons.style.display === '') {
+            additionalButtons.style.display = 'block';
+            // Hide other buttons
+            plotButtons.forEach(button => button.style.display = 'none');
+            homeButton.style.display = 'block';
+           
+
+        } else {
+            additionalButtons.style.display = 'none';
+            // Show other buttons
+            plotButtons.forEach(button => button.style.display = 'block');
+            homeButton.style.display = 'none'
+        }
+    }
+    
+    
+   
+    function individualToggle(category) {
+    var individualButtonsContainer = document.getElementById(`${category.toLowerCase()}-individual-buttons`);
+    var plotButtons = document.querySelectorAll('.button:not(.additional-buttons button)');
+    var homeButton = document.querySelector('.button[onclick="navigateToHome()"]');
+    var additionalButtonsContainer = document.getElementById('additional-buttons-container');
+    // Hide all other buttons, including "Display all plots" and individual buttons for both categories
+    plotButtons.forEach(button => {
+        if (!button.classList.contains(`${category.toLowerCase()}IndividualButton`)) {
+            button.style.display = 'none';
+        }
+    });
+    homeButton.style.display = 'block';
+    additionalButtonsContainer.style.display = 'block';
+
+    // Toggle the display style for individual buttons
+    if (individualButtonsContainer.style.display === 'none' || individualButtonsContainer.style.display === '') {
+        individualButtonsContainer.style.display = 'block';
+        // Generate and append buttons
+        generateIndividualButtons(individualButtonsContainer, category);
+        function_additional(category);
+    } else {
+        individualButtonsContainer.style.display = 'none';
+        // Clear the container when hiding
+        individualButtonsContainer.innerHTML = '';
+        // Show all other buttons when hiding the individual buttons
+        plotButtons.forEach(button => {
+            if (!button.classList.contains(`${category.toLowerCase()}IndividualButton`)) {
+                button.style.display = 'block';
+            }
+        });
+    }
+}
+
+
+
+
+function function_additional(category) {
+    const additionalButtonsContainer = document.getElementById('additional-buttons-container');
+    additionalButtonsContainer.innerHTML = ''; // Clear previous content
+
+    const button1 = document.createElement('button');
+    button1.className = 'button';
+    button1.textContent = 'elasticnet';
+    button1.addEventListener('click', function () {
+        // Add functionality for the first additional button
+        if (category.toLowerCase() === 'unsw') {
+            displayAlphaPlots();
+        } else if (category.toLowerCase() === 'kdd') {
+            displayAlphaPlots2();
+        }
+    });
+    const button2 = document.createElement('button');
+    button2.className = 'button';
+    button2.textContent = 'PCA 2D plots';
+    button2.addEventListener('click', function () {
+        // Add functionality for the first additional button
+        if (category.toLowerCase() === 'unsw') {
+            loadtwoplots('unsw_outputs/NEplot_unsw.html','unsw_outputs/Nfplot_unsw.html');
+        } else if (category.toLowerCase() === 'kdd') {
+            loadtwoplots('kdd_outputs/Nnplot_kdd.html','kdd_outputs/Nsplot_kdd.html');
+        }
+    });
+    additionalButtonsContainer.appendChild(button1);
+    additionalButtonsContainer.appendChild(button2);
+}
+function loadtwoplots(plotUrl1, plotUrl2) {
+    const container = document.getElementById('plot-container');
+    container.innerHTML = '';
+    // Create a new row container
+    const rowContainer = document.createElement('div');
+    rowContainer.className = 'row-container';
+
+    // Load the first plot in a half-width iframe
+    const iframe1 = loadPlot(plotUrl1);
+    rowContainer.appendChild(iframe1);
+
+    // Load the second plot in a half-width iframe
+    const iframe2 = loadPlot(plotUrl2);
+    rowContainer.appendChild(iframe2);
+
+    // Append the row container to the plot container
+    container.appendChild(rowContainer);
+}
+
+function loadPlot(plotUrl, className = 'full-width-iframe') {
+    const iframe = document.createElement('iframe');
+    iframe.src = plotUrl;
+    iframe.className = className;
+    return iframe;
+}
+
+   
+function generateIndividualButtons(container, category) {
+            const buttonLabels = [
+                'Bar Graph', 'Heat Maps', 't-sne', 'PCA 3D', 'LDA 3D',
+                'Kmeans with PCA', 'LDA with Kmeans', 'PCA with Kmodes'
+            ];
+            
+            // Dynamically generate buttons
+            buttonLabels.forEach((label, index) => {
+                const button = document.createElement('button');
+                button.className = 'button';
+                button.setAttribute('onclick', `loadIndividualPlot('${category.toLowerCase()}', ${index + 1})`);
+                button.textContent = label;
+                container.appendChild(button);
+            });
+        }
+
+        function getPlotFileName(category, plotIndex) {
+            // Implement logic to get the file name based on category and plot index
+            // For demonstration purposes, using a simple mapping
+            const plotCategories = {
+                unsw: ['unsw_outputs/bargraph_unsw.html', 'unsw_outputs/HeatMaps_unsw.html', 'unsw_outputs/tsne_unsw.html', 'unsw_outputs/pca3d_unsw.html', 'unsw_outputs/lda3d_unsw.html',
+                       'unsw_outputs/Kmeans_unsw.html', 'unsw_outputs/LDA_Kmeans_unsw.html', 'unsw_outputs/Kmodes_Visualization_unsw.html'],
+                kdd: ['bargraph2.html','HeatMaps2.html', 'tsne2.html', 'pca3d_2.html', 'lda3d_2.html', 'Kmeans2.html', 'LDA_Kmeans2.html', 'KModes_Visualization2.html']
+           
+            };
+
+            return plotCategories[category][plotIndex - 1];
+        }
+        function loadIndividualPlot(category, plotIndex) {
+            const plotFileName = getPlotFileName(category, plotIndex);
+            const plotUrl = `${plotFileName}`; // Adjust the path as needed
+
+            // Load the individual plot using the loadPlot1 function
+            const iframe = loadPlot1(plotUrl);
+            
+            // Display the individual plot in the appropriate container based on the category
+            const containerId = (category.toLowerCase() === 'unsw') ? 'plot-container1' : 'plot-container2';
+            const container = document.getElementById(containerId);
+            
+            // Clear previous content and append the individual plot iframe
+            container.innerHTML = '';
+            container.appendChild(iframe);
+            
+            console.log(`Loading individual plot for ${category} - ${plotFileName}`);
+        }
+       
+        function loadPlot1(plotUrl) {
+            let iframe = document.createElement('iframe');
+            iframe.src = plotUrl;
+            iframe.className = 'full-width-iframe';
+            let container = document.getElementById('plot-container');
+            container.innerHTML = ''; // Clear previous content
+            container.appendChild(iframe);
+        }
+        function loadPlot(plotUrl, className = 'full-width-iframe') {
+            let iframe = document.createElement('iframe');
+            iframe.src = plotUrl;
+            iframe.className = className;
+            return iframe;
+        }
+        function displayAlphaPlots()
+         {  let iframe = document.createElement('iframe');
+            iframe.className = 'full-width-iframe';
+            let container = document.getElementById('plot-container');
+            container.innerHTML = ''; // Clear previous content
+            container.appendChild(loadAlphaPlots1());
+        }
+        function displayAlphaPlots2()
+         {  let iframe = document.createElement('iframe');
+            iframe.className = 'full-width-iframe';
+            let container = document.getElementById('plot-container');
+            container.innerHTML = ''; // Clear previous content
+            container.appendChild(loadAlphaPlots2());
+        }
+
+
+        function loadAlphaPlots1() {
+            const alphaContainer = document.createElement('div');
+            alphaContainer.style.display = 'flex';
+            alphaContainer.style.width = '100%';
+
+            // Image 1
+            const img1 = document.createElement('img');
+            img1.src = 'unsw_outputs/elasticnet_mse_unsw.png';
+            img1.alt = 'First Image';
+            img1.style.width = '50%';
+            img1.style.height = 'auto';
+            alphaContainer.appendChild(img1);
+
+            // Image 2
+            const img2 = document.createElement('img');
+            img2.src = 'unsw_outputs/elasticnet2_unsw.png';
+            img2.alt = 'Second Image';
+            img2.style.width = '50%';
+            img2.style.height = 'auto';
+            alphaContainer.appendChild(img2);
+
+            return alphaContainer;
+
+        }
+        function loadAlphaPlots2() {
+            const alphaContainer = document.createElement('div');
+            alphaContainer.style.display = 'flex';
+            alphaContainer.style.width = '100%';
+
+            // Image 1
+            const img1 = document.createElement('img');
+            img1.src = 'kdd_outputs/elasticnet_mse_kdd.png';
+            img1.alt = 'First Image';
+            img1.style.width = '50%';
+            img1.style.height = 'auto';
+            alphaContainer.appendChild(img1);
+
+            // Image 2
+            const img2 = document.createElement('img');
+            img2.src = 'kdd_outputs/elasticnet2_kdd.png';
+            img2.alt = 'Second Image';
+            img2.style.width = '50%';
+            img2.style.height = 'auto';
+            alphaContainer.appendChild(img2);
+
+            return alphaContainer;
+
+        }
+
+
+        function loadAllPlots() {
+            const fullFramePlots = ['unsw_outputs/HeatMaps_unsw.html', 'unsw_outputs/tsne_unsw.html', 'unsw_outputs/pca3d_unsw.html', 'unsw_outputs/lda3d_unsw.html', 'unsw_outputs/Kmeans_unsw.html', 'unsw_outputs/LDA_Kmeans_unsw.html', 'unsw_outputs/KModes_Visualization_unsw.html'];
+            const halfFramePlots = ['unsw_outputs/bargraph_unsw.html', 'unsw_outputs/NEplot_unsw.html','unsw_outputs/Nfplot_unsw.html'];
+
+            let container = document.getElementById('plot-container');
+            container.innerHTML = ''; // Clear previous content
+
+            // Load HeatMaps.html in full frame
+            container.appendChild(loadPlot(fullFramePlots[0]));
+
+            // Create a new row for bargraph and alpha plots with full-width iframes
+            let newRowContainer = document.createElement('div');
+            newRowContainer.className = 'row-container';
+
+            // Load bargraph with full-width iframe
+            newRowContainer.appendChild(loadPlot(halfFramePlots[0]));
+
+            // Load alpha.html content with side-by-side images
+            const alphaContainer = loadAlphaPlots1();
+            newRowContainer.appendChild(alphaContainer);
+
+            container.appendChild(newRowContainer);
+
+            // Load the rest of the full frame plots
+            for (let i = 1; i < fullFramePlots.length; i++) {
+                container.appendChild(loadPlot(fullFramePlots[i]));
+            }
+
+            // Load the remaining half frame plots in pairs with full-width iframes
+            for (let i = 1; i < halfFramePlots.length; i += 2) {
+                if (i !== 3) { // Skip loading alpha.html and bargraph.html again
+                    let iframeContainer = document.createElement('div');
+                    iframeContainer.className = 'iframe-pair-container';
+
+                    let iframe1 = loadPlot(halfFramePlots[i]);
+                    let iframe2 = loadPlot(halfFramePlots[i + 1] || halfFramePlots[0]);
+
+                    iframeContainer.appendChild(iframe1);
+                    iframeContainer.appendChild(iframe2);
+                    container.appendChild(iframeContainer);
+                }
+            }
+        }
+        function loadAllPlots2() {
+            const fullFramePlots1= ['kdd_outputs/HeatMaps_kdd.html', 'kdd_outputs/tsne_kdd.html', 'kdd_outputs/pca3d_kdd.html', 'kdd_outputs/lda3d_kdd.html', 'kdd_outputs/Kmeans_kdd.html', 'kdd_outputs/LDA_Kmeans_kdd.html', 'kdd_outputs/KModes_kdd.html'];
+            const halfFramePlots1 = ['kdd_outputs/bargraph_kdd.html', 'kdd_outputs/Nnplot_kdd.html', 'kdd_outputs/Nsplot_kdd.html'];
+
+            let container = document.getElementById('plot-container');
+            container.innerHTML = ''; // Clear previous content
+
+            // Load HeatMaps.html in full frame
+            container.appendChild(loadPlot(fullFramePlots1[0]));
+
+            // Create a new row for bargraph and alpha plots with full-width iframes
+            let newRowContainer = document.createElement('div');
+            newRowContainer.className = 'row-container';
+
+            // Load bargraph with full-width iframe
+            newRowContainer.appendChild(loadPlot(halfFramePlots1[0]));
+
+            // Load alpha.html content with side-by-side images
+            const alphaContainer = loadAlphaPlots2();
+            newRowContainer.appendChild(alphaContainer);
+
+            container.appendChild(newRowContainer);
+
+            // Load the rest of the full frame plots
+            for (let i = 1; i < fullFramePlots1.length; i++) {
+                container.appendChild(loadPlot(fullFramePlots1[i]));
+            }
+
+            // Load the remaining half frame plots in pairs with full-width iframes
+            for (let i = 1; i < halfFramePlots1.length; i += 2) {
+                if (i !== 3) { // Skip loading alpha.html and bargraph.html again
+                    let iframeContainer = document.createElement('div');
+                    iframeContainer.className = 'iframe-pair-container';
+
+                    let iframe1 = loadPlot(halfFramePlots1[i]);
+                    let iframe2 = loadPlot(halfFramePlots1[i + 1] || halfFramePlots1[0]);
+
+                    iframeContainer.appendChild(iframe1);
+                    iframeContainer.appendChild(iframe2);
+                    container.appendChild(iframeContainer);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
